@@ -5,6 +5,8 @@
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
+  # pdfkit loads font data from its own files, so ship it unbundled from root node_modules.
+  external_node_modules = ["pdfkit"]
 
 [build.environment]
   NODE_VERSION = "20"
