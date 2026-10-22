@@ -6,6 +6,12 @@ import { connectDB } from '../../server/src/config/db.js';
 // serverless-http pre-fills req.body with a Buffer, which makes express.json()
 // skip parsing. Parse JSON here and mark the body as handled.
 const handle = serverless((req, res) => {
+  // serverless-http sets its own (undefined) req.ip, which shadows Express's getter and
+  // breaks the rate limiter. Take the client IP from Netlify's forwarded headers instead.
+  if (!req.ip) {
+    const fwd = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+    req.ip = req.headers['x-nf-client-connection-ip'] || fwd || '0.0.0.0';
+  }
   if (Buffer.isBuffer(req.body)) {
     const raw = req.body.toString('utf8');
     const isJson = /json/i.test(req.headers['content-type'] || '');

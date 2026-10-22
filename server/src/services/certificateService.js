@@ -1,5 +1,4 @@
 import crypto from 'node:crypto';
-import PDFDocument from 'pdfkit';
 import Certificate from '../models/Certificate.js';
 import AssessmentAttempt from '../models/AssessmentAttempt.js';
 import Assessment from '../models/Assessment.js';
@@ -10,7 +9,9 @@ import { uploadBuffer } from './fileService.js';
 
 const newCertNumber = () => `CERT-${new Date().getFullYear()}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 
-function renderPdf({ employee, training, certificateNumber, issueDate, expiryDate }) {
+// Loaded lazily: pdfkit reads import.meta.url at load time, which breaks the CJS Netlify bundle.
+async function renderPdf({ employee, training, certificateNumber, issueDate, expiryDate }) {
+  const { default: PDFDocument } = await import('pdfkit');
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', layout: 'landscape', margin: 50 });
     const chunks = [];
