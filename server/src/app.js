@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -23,7 +22,8 @@ app.get('/health', (_req, res) => res.json({ ok: true }));
 app.use('/api/v1', routes);
 
 // Single-host deploy: serve the built client (client/dist) when it exists.
-const CLIENT_DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../client/dist');
+// Resolved from cwd (server/) rather than import.meta, which is empty when bundled as CJS.
+const CLIENT_DIST = path.resolve(process.cwd(), '../client/dist');
 if (fs.existsSync(CLIENT_DIST)) {
   app.use(express.static(CLIENT_DIST));
   app.use((req, res, next) => {

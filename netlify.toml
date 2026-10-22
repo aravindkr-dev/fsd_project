@@ -8,6 +8,8 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  # NODE_ENV's value ("production") appears in source, so don't flag it as a leaked secret.
+  SECRETS_SCAN_OMIT_KEYS = "NODE_ENV"
 
 # API goes to the Express function; everything else is the React SPA.
 [[redirects]]
