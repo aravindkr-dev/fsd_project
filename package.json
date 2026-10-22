@@ -1,0 +1,8 @@
+{
+  "name": "fsd-project",
+  "private": true,
+  "description": "Root manifest so Netlify can resolve the function's dependencies.",
+  "dependencies": {
+    "serverless-http": "^3.2.0"
+  }
+}

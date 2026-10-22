@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -18,6 +21,16 @@ if (env.nodeEnv !== 'test') app.use(morgan(env.nodeEnv === 'production' ? 'combi
 app.use('/uploads', express.static(UPLOAD_DIR));
 app.get('/health', (_req, res) => res.json({ ok: true }));
 app.use('/api/v1', routes);
+
+// Single-host deploy: serve the built client (client/dist) when it exists.
+const CLIENT_DIST = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../client/dist');
+if (fs.existsSync(CLIENT_DIST)) {
+  app.use(express.static(CLIENT_DIST));
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' || req.path.startsWith('/api/')) return next();
+    res.sendFile(path.join(CLIENT_DIST, 'index.html'));
+  });
+}
 
 app.use(notFoundHandler);
 app.use(errorHandler);
